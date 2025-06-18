@@ -170,7 +170,7 @@ class _MenuPrincipalViewState extends State<MenuPrincipalView> {
     );
   }
 
-  // Função para criar cada Card, com navegação
+  // criar o card function
   Widget _buildCard(
       BuildContext context, String title, IconData icon, Widget? destination) {
     return Card(
