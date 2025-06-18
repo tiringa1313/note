@@ -1,0 +1,2 @@
+C:/Users/Virgulino/note_gm/android/app/.cxx/RelWithDebInfo/36a4a2w2/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/Users/Virgulino/note_gm/android/app/.cxx/RelWithDebInfo/36a4a2w2/armeabi-v7a/CMakeFiles/rebuild_cache.dir
