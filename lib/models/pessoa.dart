@@ -60,8 +60,9 @@ class PessoaModel {
     return PessoaModel(
       faceId: json['faceId'] ?? '',
       nome: json['nome'] ?? '',
-      documentoIdentificacao: json['documentoIdentificacao'] ?? '',
-      fotoUrl: json['fotoUrl'] ?? '',
+      documentoIdentificacao:
+          json['documentoIdentificacao'] ?? json['cpf'] ?? '',
+      fotoUrl: json['fotoUrl'] ?? json['imagem_url'] ?? '',
       nomeMae: json['nomeMae'],
       nomePai: json['nomePai'],
       dataNascimento: json['dataNascimento'],

@@ -44,12 +44,34 @@ class PossiveisCorrespondenciasView extends StatelessWidget {
                 ),
                 margin: const EdgeInsets.only(bottom: 12),
                 child: ListTile(
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  leading: CircleAvatar(
-                    backgroundImage: NetworkImage(pessoa.fotoUrl ?? ''),
-                    radius: 28,
-                    backgroundColor: Colors.grey[200],
+                  contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16, vertical: 18), // Aumente o vertical aqui!
+
+                  //campoo da foto do individuo
+                  leading: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: pessoa.fotoUrl != null && pessoa.fotoUrl!.isNotEmpty
+                        ? Image.network(
+                            pessoa.fotoUrl!,
+                            width: 60,
+                            height:
+                                120, // Mantenha a altura desejada para a imagem
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => Container(
+                              width: 60,
+                              height: 120, // Mantenha a altura desejada
+                              color: Colors.grey,
+                              child:
+                                  const Icon(Icons.person, color: Colors.white),
+                            ),
+                          )
+                        : Container(
+                            width: 60,
+                            height: 120, // Mantenha a altura desejada
+                            color: Colors.grey,
+                            child:
+                                const Icon(Icons.person, color: Colors.white),
+                          ),
                   ),
                   title: Text(
                     pessoa.nome,
@@ -59,10 +81,14 @@ class PossiveisCorrespondenciasView extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 4),
+
+                      // Documento
                       Text(
                         'Doc: ${pessoa.documentoIdentificacao ?? '---'}',
                         style: const TextStyle(fontSize: 14),
                       ),
+
+                      // Similaridade textual
                       Text(
                         'Similaridade: $similaridadeStr%',
                         style: TextStyle(
@@ -70,6 +96,15 @@ class PossiveisCorrespondenciasView extends StatelessWidget {
                           color: corSimilaridade,
                           fontWeight: FontWeight.w500,
                         ),
+                      ),
+
+                      // Barra visual de similaridade
+                      const SizedBox(height: 6),
+                      LinearProgressIndicator(
+                        value: similaridadeNum, // entre 0.0 e 1.0
+                        backgroundColor: Colors.grey[300],
+                        color: corSimilaridade,
+                        minHeight: 6,
                       ),
                     ],
                   ),
@@ -112,14 +147,26 @@ class PossiveisCorrespondenciasView extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 20),
                 child: ElevatedButton.icon(
                   onPressed: onCadastrarNovo,
-                  icon: const Icon(Icons.person_add),
-                  label: const Text("Não é nenhum desses – Cadastrar novo"),
+                  icon: const Icon(
+                    Icons.person_add,
+                    color: Colors.white,
+                  ),
+                  label: const Text(
+                    "Não é nenhum desses – Cadastrar novo",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 15,
+                    ),
+                  ),
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size.fromHeight(50),
-                    backgroundColor: Colors.deepPurple,
+                    backgroundColor:
+                        Colors.indigo[800], // mesmo tom do botão da galeria
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
+                    elevation: 4,
                   ),
                 ),
               );
