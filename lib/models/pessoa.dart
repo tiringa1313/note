@@ -14,7 +14,8 @@ class PessoaModel {
   final String? endereco;
   final String? alcunhas;
   final String? profissao;
-  final String? fotoUrl;
+  final String? fotoUrl; // URL da imagem (somente leitura)
+  final double? similaridade; // Apenas leitura do backend
 
   PessoaModel({
     required this.faceId,
@@ -33,35 +34,38 @@ class PessoaModel {
     this.endereco,
     this.alcunhas,
     this.profissao,
+    this.similaridade,
   });
 
+  /// Usado ao ENVIAR dados para o backend (cadastrar/atualizar pessoa)
   Map<String, dynamic> toJson() {
     return {
       'faceId': faceId,
       'nome': nome,
-      'documentoIdentificacao': documentoIdentificacao,
-      'nomeMae': nomeMae,
-      'nomePai': nomePai,
-      'dataNascimento': dataNascimento,
-      'naturalidade': naturalidade,
-      'sexo': sexo,
-      'cnhNumero': cnhNumero,
-      'validadeCnh': validadeCnh,
-      'categoriaCnh': categoriaCnh,
-      'telefones': telefones,
-      'endereco': endereco,
-      'alcunhas': alcunhas,
-      'profissao': profissao,
-      // não envia fotoUrl
+      'cpf': documentoIdentificacao, // O backend espera como 'cpf'
+      'nomeMae': nomeMae ?? '',
+      'nomePai': nomePai ?? '',
+      'dataNascimento': dataNascimento ?? '',
+      'naturalidade': naturalidade ?? '',
+      'sexo': sexo ?? '',
+      'cnhNumero': cnhNumero ?? '',
+      'validadeCnh': validadeCnh ?? '',
+      'categoriaCnh': categoriaCnh ?? '',
+      'telefones': telefones ?? '',
+      'endereco': endereco ?? '',
+      'alcunhas': alcunhas ?? '',
+      'profissao': profissao ?? '',
+      // 'fotoUrl' não deve ser enviado
     };
   }
 
+  /// Usado ao RECEBER dados do backend (listar/verificar)
   factory PessoaModel.fromJson(Map<String, dynamic> json) {
+    final doc = json['cpf'] ?? json['documentoIdentificacao'] ?? '';
     return PessoaModel(
       faceId: json['faceId'] ?? '',
       nome: json['nome'] ?? '',
-      documentoIdentificacao:
-          json['documentoIdentificacao'] ?? json['cpf'] ?? '',
+      documentoIdentificacao: doc,
       fotoUrl: json['fotoUrl'] ?? json['imagem_url'] ?? '',
       nomeMae: json['nomeMae'],
       nomePai: json['nomePai'],
@@ -75,12 +79,16 @@ class PessoaModel {
       endereco: json['endereco'],
       alcunhas: json['alcunhas'],
       profissao: json['profissao'],
+      similaridade: (json['similaridade'] != null)
+          ? (json['similaridade'] as num).toDouble()
+          : null,
     );
   }
 
   factory PessoaModel.fromMap(Map<String, dynamic> map) =>
       PessoaModel.fromJson(map);
 
+  /// Cria uma cópia alterando apenas `faceId` ou `fotoUrl` (útil após cadastro da imagem)
   PessoaModel copyWith({
     String? faceId,
     String? fotoUrl,
@@ -102,6 +110,7 @@ class PessoaModel {
       alcunhas: alcunhas,
       profissao: profissao,
       fotoUrl: fotoUrl ?? this.fotoUrl,
+      similaridade: similaridade,
     );
   }
 }

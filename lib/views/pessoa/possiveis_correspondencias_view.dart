@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:note_gm/models/pessoa.dart';
+import 'package:note_gm/views/pessoa/DetalhesPessoaPage.dart';
 
 class PossiveisCorrespondenciasView extends StatelessWidget {
   final List<Map<String, dynamic>> correspondencias;
@@ -110,35 +111,16 @@ class PossiveisCorrespondenciasView extends StatelessWidget {
                   ),
                   isThreeLine: true,
                   trailing: const Icon(Icons.chevron_right),
-                  onTap: () {
-                    showDialog(
-                      context: context,
-                      builder: (_) => AlertDialog(
-                        title: const Text("Confirmar"),
-                        content: Text(
-                          "Confirmar que ${pessoa.nome} é a mesma pessoa?",
-                        ),
-                        actions: [
-                          TextButton(
-                            child: const Text("Cancelar"),
-                            onPressed: () => Navigator.pop(context),
-                          ),
-                          ElevatedButton(
-                            child: const Text("Confirmar"),
-                            onPressed: () {
-                              Navigator.pop(context);
-                              Navigator.pop(context, pessoa);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text("${pessoa.nome} confirmada."),
-                                  backgroundColor: Colors.green,
-                                ),
-                              );
-                            },
-                          ),
-                        ],
+                  onTap: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => DetalhesPessoaPage(pessoa: pessoa),
                       ),
                     );
+
+                    // Após voltar da página de detalhes, fecha a lista
+                    Navigator.pop(context, pessoa);
                   },
                 ),
               );

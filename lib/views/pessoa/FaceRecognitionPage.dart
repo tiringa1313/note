@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:note_gm/models/pessoa.dart';
 import 'package:note_gm/services/face_service.dart';
+import 'package:note_gm/views/pessoa/DetalhesPessoaPage.dart';
 import 'package:note_gm/views/pessoa/dialogs/confirmar_envio_imagem_dialog.dart';
 import 'package:note_gm/views/pessoa/dialogs/pessoa_localizada_dialog.dart';
 import 'package:note_gm/views/pessoa/cadastro_pessoa_page.dart';
@@ -20,48 +21,68 @@ class _FaceRecognitionPageState extends State<FaceRecognitionPage> {
   bool isLoadingImage = false;
 
   Future<void> captureAndSendImage() async {
-    // 1) Exibe indicador de carregamento
     setState(() => isLoadingImage = true);
 
-    // 2) Captura a foto pela câmera
     final pickedFile = await _picker.pickImage(source: ImageSource.camera);
 
-    // 3) Usuário cancelou?
     if (pickedFile == null) {
       setState(() => isLoadingImage = false);
       print("❌ Captura cancelada.");
       return;
     }
 
-    // 4) Guarda a imagem no estado para exibir na UI
     final image = File(pickedFile.path);
     setState(() {
       _capturedImage = image;
-      isLoadingImage = false; // já podemos esconder o spinner da UI
+      isLoadingImage = false;
     });
 
-    // 5) Confirmação do usuário antes de prosseguir
     final confirmar = await showConfirmarEnvioImagemDialog(context);
     if (!confirmar) {
       print('❌ Envio cancelado pelo usuário.');
       return;
     }
 
-    // 6) Envia para o serviço de reconhecimento facial
     try {
-      final pessoa = await FaceService.buscarPessoaPorImagem(image);
+      final lista = await FaceService.buscarMultiplasCorrespondencias(image);
 
-      if (pessoa != null) {
-        print("✅ Pessoa já cadastrada: ${pessoa.nome}");
-        showDialog(
-          context: context,
-          builder: (_) => PessoaLocalizadaDialog(pessoa: pessoa),
+      if (lista.isNotEmpty) {
+        final pessoaMaisProxima = PessoaModel.fromJson(lista[0]);
+        final similaridade = pessoaMaisProxima.similaridade ?? 0.0;
+
+        // Reconhecimento automático se similaridade for muito alta
+        if (similaridade >= 0.9) {
+          print("✅ Pessoa reconhecida com alta similaridade ($similaridade)");
+          showDialog(
+            context: context,
+            builder: (_) => PessoaLocalizadaDialog(pessoa: pessoaMaisProxima),
+          );
+          setState(() => shouldShowRegisterButton = false);
+          return;
+        }
+
+        // Caso não atinja 0.9, mostra lista de possíveis correspondências
+        final resultado = await Navigator.push<PessoaModel>(
+          context,
+          MaterialPageRoute(
+            builder: (_) => PossiveisCorrespondenciasView(
+              correspondencias: lista,
+              onCadastrarNovo: () => Navigator.pop(context),
+            ),
+          ),
         );
-        setState(() => shouldShowRegisterButton = false);
-      } else {
-        print("🔍 Pessoa não encontrada. Pode cadastrar.");
-        setState(() => shouldShowRegisterButton = true);
+
+        if (resultado != null) {
+          // Agente confirmou uma correspondência
+
+          setState(() => shouldShowRegisterButton = false);
+          return;
+        }
       }
+
+      // Nenhuma correspondência confirmada → habilita botão de cadastrar
+      print("🔍 Nenhuma pessoa confirmada. Pode cadastrar.");
+      setState(() => shouldShowRegisterButton = true);
     } catch (e) {
       print('⚠️ Erro ao buscar pessoa: $e');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -261,6 +282,22 @@ class _FaceRecognitionPageState extends State<FaceRecognitionPage> {
                         final lista =
                             await FaceService.buscarMultiplasCorrespondencias(
                                 image);
+                        if (lista.length == 1 &&
+                            (lista[0]['similaridade'] ?? 0.0) >= 0.9) {
+                          print(
+                              '🎯 Similaridade alta. Pulando a tela de correspondências.');
+
+                          final pessoa = PessoaModel.fromJson(lista[0]);
+
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  DetalhesPessoaPage(pessoa: pessoa),
+                            ),
+                          );
+                          return;
+                        }
 
                         print('📋 Lista de correspondências retornada: $lista');
 

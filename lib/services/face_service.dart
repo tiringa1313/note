@@ -42,6 +42,7 @@ class FaceService {
 
       final request = http.MultipartRequest('POST', uri)
         ..fields['nome'] = pessoa.nome
+        ..fields['cpf'] = pessoa.documentoIdentificacao
         ..files.add(await http.MultipartFile.fromPath(
           'file',
           image.path,
