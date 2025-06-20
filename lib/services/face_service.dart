@@ -5,8 +5,8 @@ import 'package:note_gm/models/pessoa.dart';
 import 'package:path/path.dart' as path;
 
 class FaceService {
-  static const String _baseUrl = 'http://192.168.3.9:8000';
-  //static const String _baseUrl = 'http://10.0.2.2:8000'; /*emulador*/
+  //static const String _baseUrl = 'http://192.168.3.9:8000';
+  static const String _baseUrl = 'http://10.0.2.2:8000'; /*emulador*/
 
   static Future<PessoaModel?> buscarPessoaPorImagem(File image) async {
     try {

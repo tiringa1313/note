@@ -15,7 +15,7 @@ class PossiveisCorrespondenciasView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Possíveis Correspondências")),
+      appBar: AppBar(title: const Text("Resultados")),
       body: SafeArea(
         child: ListView.builder(
           padding: const EdgeInsets.all(16),

@@ -234,7 +234,7 @@ class _FaceRecognitionPageState extends State<FaceRecognitionPage> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Botão secundário
+                  // Botão secundário- Buscar na galeria
                   ElevatedButton.icon(
                       icon: const Icon(
                         Icons.photo_library,
@@ -330,6 +330,9 @@ class _FaceRecognitionPageState extends State<FaceRecognitionPage> {
                           );
                         } else {
                           print('🔴 Nenhuma correspondência encontrada!');
+                          setState(() => shouldShowRegisterButton =
+                              true); // ← ATIVA O BOTÃO
+
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content:

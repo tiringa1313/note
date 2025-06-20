@@ -16,7 +16,7 @@ class DetalhesPessoaPage extends StatelessWidget {
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
         title: Padding(
-          padding: const EdgeInsets.only(bottom: 6), // 4 px de respiro
+          padding: const EdgeInsets.only(bottom: 6),
           child: Text(
             pessoa.nome,
             style: const TextStyle(
@@ -25,6 +25,18 @@ class DetalhesPessoaPage extends StatelessWidget {
             ),
           ),
         ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: IconButton(
+              icon: const Icon(Icons.add_a_photo, color: Colors.white),
+              tooltip: 'Nova foto',
+              onPressed: () {
+                print("📸 Ícone de foto com + clicado");
+              },
+            ),
+          ),
+        ],
       ),
       body: Stack(
         children: [
