@@ -61,12 +61,20 @@ class _FaceRecognitionPageState extends State<FaceRecognitionPage> {
           return;
         }
 
-        // Caso não atinja 0.9, mostra lista de possíveis correspondências
+        final correspondenciasComImagem =
+            lista.map<Map<String, dynamic>>((item) {
+          return {
+            ...item,
+            'imagemFile': image, // <- aqui você injeta a imagem capturada
+          };
+        }).toList();
+
+        // Mostra a lista de possíveis correspondências
         final resultado = await Navigator.push<PessoaModel>(
           context,
           MaterialPageRoute(
             builder: (_) => PossiveisCorrespondenciasView(
-              correspondencias: lista,
+              correspondencias: correspondenciasComImagem,
               onCadastrarNovo: () => Navigator.pop(context),
             ),
           ),
@@ -74,7 +82,6 @@ class _FaceRecognitionPageState extends State<FaceRecognitionPage> {
 
         if (resultado != null) {
           // Agente confirmou uma correspondência
-
           setState(() => shouldShowRegisterButton = false);
           return;
         }
@@ -83,6 +90,14 @@ class _FaceRecognitionPageState extends State<FaceRecognitionPage> {
       // Nenhuma correspondência confirmada → habilita botão de cadastrar
       print("🔍 Nenhuma pessoa confirmada. Pode cadastrar.");
       setState(() => shouldShowRegisterButton = true);
+    } catch (e) {
+      print('⚠️ Erro ao buscar pessoa: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Erro ao processar a imagem. Tente novamente.'),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
     } catch (e) {
       print('⚠️ Erro ao buscar pessoa: $e');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -304,11 +319,19 @@ class _FaceRecognitionPageState extends State<FaceRecognitionPage> {
                         if (lista.isNotEmpty) {
                           print(
                               '✅ Correspondências encontradas. Navegando para tela de resultados...');
+                          final correspondenciasComImagem =
+                              lista.map<Map<String, dynamic>>((item) {
+                            return {
+                              ...item,
+                              'imagemFile': image,
+                            };
+                          }).toList();
+
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (_) => PossiveisCorrespondenciasView(
-                                correspondencias: lista,
+                                correspondencias: correspondenciasComImagem,
                                 onCadastrarNovo: () {
                                   print(
                                       '➕ Usuário optou por cadastrar novo indivíduo.');

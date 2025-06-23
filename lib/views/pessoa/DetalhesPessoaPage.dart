@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:note_gm/models/pessoa.dart';
+import 'package:note_gm/views/pessoa/embedding_page.dart';
 import 'package:note_gm/views/pessoa/grafo_relacionamentos_widget.dart';
 
 class DetalhesPessoaPage extends StatelessWidget {
@@ -32,7 +34,25 @@ class DetalhesPessoaPage extends StatelessWidget {
               icon: const Icon(Icons.add_a_photo, color: Colors.white),
               tooltip: 'Nova foto',
               onPressed: () {
-                print("📸 Ícone de foto com + clicado");
+                if (pessoa.fotoFilePath == null ||
+                    pessoa.fotoFilePath!.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Nenhuma foto disponível para enviar'),
+                    ),
+                  );
+                  return;
+                }
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => EmbeddingPage(
+                      pessoa: pessoa,
+                      imagePath: pessoa.fotoFilePath ?? '',
+                    ),
+                  ),
+                );
               },
             ),
           ),
@@ -54,6 +74,7 @@ class DetalhesPessoaPage extends StatelessWidget {
             length: 2,
             child: Column(
               children: [
+                const SizedBox(height: 16),
                 Center(
                   child: Container(
                     width: 140,
@@ -68,23 +89,37 @@ class DetalhesPessoaPage extends StatelessWidget {
                           offset: Offset(0, 4),
                         ),
                       ],
-                      image:
-                          (pessoa.fotoUrl != null && pessoa.fotoUrl!.isNotEmpty)
-                              ? DecorationImage(
-                                  image: NetworkImage(pessoa.fotoUrl!),
-                                  fit: BoxFit.cover,
-                                )
-                              : null,
                       color: Colors.white,
                     ),
-                    child: (pessoa.fotoUrl == null || pessoa.fotoUrl!.isEmpty)
-                        ? Icon(Icons.person, size: 60, color: Colors.grey)
-                        : null,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(14),
+                      child: pessoa.fotoFilePath != null &&
+                              pessoa.fotoFilePath!.isNotEmpty
+                          ? Image.file(
+                              File(pessoa.fotoFilePath!),
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) =>
+                                  const Icon(Icons.broken_image, size: 60),
+                            )
+                          : (pessoa.fotoUrl != null &&
+                                  pessoa.fotoUrl!.isNotEmpty)
+                              ? Image.network(
+                                  pessoa.fotoUrl!,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, __, ___) =>
+                                      const Icon(Icons.broken_image, size: 60),
+                                  loadingBuilder: (_, child, progress) {
+                                    if (progress == null) return child;
+                                    return const Center(
+                                        child: CircularProgressIndicator());
+                                  },
+                                )
+                              : const Icon(Icons.person,
+                                  size: 60, color: Colors.grey),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 32),
-
-                // Segmento Dados/Relacionamentos
                 Container(
                   margin: const EdgeInsets.symmetric(horizontal: 18),
                   decoration: BoxDecoration(
@@ -97,8 +132,10 @@ class DetalhesPessoaPage extends StatelessWidget {
                     labelColor: Color(0xFF4753C9),
                     unselectedLabelColor: Colors.grey[600],
                     labelStyle: const TextStyle(
-                        fontWeight: FontWeight.w600, fontSize: 15),
-                    dividerColor: Colors.transparent, // <- ESSENCIAL
+                      fontWeight: FontWeight.w600,
+                      fontSize: 15,
+                    ),
+                    dividerColor: Colors.transparent,
                     tabs: const [
                       Tab(text: 'Informações'),
                       Tab(text: 'Relacionamentos'),
@@ -109,7 +146,6 @@ class DetalhesPessoaPage extends StatelessWidget {
                 Expanded(
                   child: TabBarView(
                     children: [
-                      // Aba Dados
                       SingleChildScrollView(
                         padding: const EdgeInsets.all(16),
                         child: Column(
@@ -132,22 +168,14 @@ class DetalhesPessoaPage extends StatelessWidget {
                           ],
                         ),
                       ),
-
-                      // Aba Relacionamentos (placeholder)
                       Container(
                         width: double.infinity,
                         height: double.infinity,
-                        color: Color(0xFFF8F2FF), // mesma cor de fundo da tela
+                        color: Color(0xFFF8F2FF),
                         child: GrafoRelacionamentosWidget(
                           pessoaCentral: pessoa.nome,
-                          relacionados: [
-                            'João',
-                            'Maria',
-                            'Carlos',
-                            'Ana'
-                          ], // substitua pelos vínculos reais
+                          relacionados: ['João', 'Maria', 'Carlos', 'Ana'],
                         ),
-                        // ou futuramente: grafo
                       ),
                     ],
                   ),

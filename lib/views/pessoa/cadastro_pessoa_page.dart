@@ -81,6 +81,7 @@ class _CadastroPessoaPageState extends State<CadastroPessoaPage> {
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
                       final pessoa = PessoaModel(
+                        id: null,
                         faceId: const Uuid().v4(),
                         nome: _nomeController.text,
                         documentoIdentificacao: _cpfController.text,

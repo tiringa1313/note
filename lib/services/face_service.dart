@@ -85,18 +85,18 @@ class FaceService {
         final json = jsonDecode(body);
         print('🧠 JSON decodificado: $json');
 
-        // Verifica se o campo correto está presente
+        // Corrigido: verifica o campo 'resultados'
         if (json['resultados'] != null && json['resultados'] is List) {
           final List<Map<String, dynamic>> lista =
               List<Map<String, dynamic>>.from(json['resultados']);
 
-          // Ajusta as URLs das imagens
           for (var item in lista) {
             final imagemUrl = item['imagem_url'];
             if (imagemUrl != null &&
                 imagemUrl is String &&
-                imagemUrl.startsWith('/')) {
-              item['imagem_url'] = 'http://192.168.3.9:8000$imagemUrl';
+                imagemUrl.startsWith('http://localhost')) {
+              item['imagem_url'] = imagemUrl.replaceFirst(
+                  'http://localhost:8000', 'http://192.168.3.9:8000');
             }
           }
 
@@ -113,6 +113,48 @@ class FaceService {
     } catch (e) {
       print("❌ Erro ao buscar múltiplas correspondências: $e");
       return [];
+    }
+  }
+
+  static Future<bool> enviarNovaFotoConfirmada(int pessoaId, File image) async {
+    try {
+      print(
+          "📤 Iniciando envio da nova foto confirmada para a pessoa ID: $pessoaId");
+
+      final uri = Uri.parse(
+        'http://10.0.2.2:8000/face/adicionar-foto-confirmada/$pessoaId',
+      );
+
+      print("🌐 URI de destino: $uri");
+      print("🖼️ Caminho da imagem: ${image.path}");
+      print('🔄 Resposta bruta da API: $json');
+
+      final request = http.MultipartRequest('POST', uri)
+        ..files.add(await http.MultipartFile.fromPath(
+          'file',
+          image.path,
+          filename: path.basename(image.path),
+        ));
+
+      print("📦 Requisição montada, enviando...");
+
+      final response = await request.send();
+      final body = await response.stream.bytesToString();
+
+      print("📥 Resposta recebida. Status: ${response.statusCode}");
+      print("📄 Corpo da resposta: $body");
+
+      if (response.statusCode == 200) {
+        print("✅ Nova foto confirmada adicionada com sucesso.");
+        return true;
+      } else {
+        print(
+            "❌ Erro ao adicionar nova foto (status: ${response.statusCode}): $body");
+        return false;
+      }
+    } catch (e) {
+      print("❌ Exceção ao enviar nova foto confirmada: $e");
+      return false;
     }
   }
 }
